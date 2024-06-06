@@ -7,11 +7,16 @@ export default function Home() {
   const [weather, setWeather] = useState(null);
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(async (position) => {
+
+      console.log("position: ",position);
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
+      console.log("cordenades: ",lat, lon);
+      console.log(process.env.API_WEATHER_KEY);
 
       //const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=02230d36bb6244048c0121043242405&q=${lat},${lon}`);
-      const data = {
+      const data = await response.json();
+            /*const data = {
         location: {
           name: 'Vic',
           region: 'Catalonia',
@@ -51,11 +56,12 @@ export default function Home() {
           gust_mph: 6.5,
           gust_kph: 10.5
         }
-      }
+      }*/
+
       console.log(data);
       console.log(data.current.icon);
       setWeather({
-        location: data.location.name,
+        //location: data.location.name,
         current: data.current.temp_c,
         humidity: data.current.humidity,
         temps: data.current.condition.icon,
@@ -84,7 +90,7 @@ export default function Home() {
               
               {weather ? (
                 <div className="space-y-4">
-                  <p className="mb-2 text-lx font-bold">Ubicació: {weather.location}</p>
+                  {/*<p className="mb-2 text-lx font-bold">Ubicació: {weather.location}</p>*/}
                   <p className="text-lx"> <span className="font-semibold">{weather.localtime}</span></p>
                   <div className="flex items-center justify-center mb-2">
                     <p className="mr-2 text-4xl font-semibold">{weather.current}°C</p>
@@ -96,8 +102,8 @@ export default function Home() {
                       className="inline-block"
                     />
                   </div>
-                  <p className="text-lx">Humitat: {weather.humidity}%</p>
-                  <p className="text-lx">Vent: {weather.bent_km} km/h</p>
+                  <p className="text-lg">Humitat: {weather.humidity}%</p>
+                  <p className="text-lg">Vent: {weather.bent_km} km/h</p>
                   
                 </div>
               ) : (
