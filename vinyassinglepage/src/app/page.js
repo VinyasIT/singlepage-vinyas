@@ -111,8 +111,8 @@ export default function Home() {
                       className="inline-block"
                     />
                   </div>
-                  <p className="text-lg">Humitat: {weather.humidity}%</p>
-                  <p className="text-lg">Vent: {weather.bent_km} km/h</p>
+                  <p className="text-lg font-semibold">Humitat: {weather.humidity}%</p>
+                  <p className="text-lg font-semibold">Vent: {weather.bent_km} km/h</p>
 
                 </div>
               ) : (
