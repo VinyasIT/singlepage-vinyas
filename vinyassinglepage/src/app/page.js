@@ -25,11 +25,15 @@ export default function Home() {
   // useEffect para obtener los datos del clima cada hora
   useEffect(() => {
     const fetchWeatherData = async () => {
-      navigator.geolocation.getCurrentPosition(async (position) => {
+      /*navigator.geolocation.getCurrentPosition(async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         // consulta a la api de weatherapi.com
-        const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=02230d36bb6244048c0121043242405&q=${lat},${lon}`);
+        console.log(lat, lon);
+      });
+      */
+
+        const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=02230d36bb6244048c0121043242405&q=41.9552349,2.2765911`);
         const data = await response.json();
         console.log(data);
         // Datos simulados
@@ -86,7 +90,7 @@ export default function Home() {
           localtime: data.location.localtime,
           bent_km: data.current.wind_kph,
         });
-      });
+      
     };
 
     fetchWeatherData();
