@@ -5,77 +5,117 @@ import Image from 'next/image';
 
 export default function Home() {
   const [weather, setWeather] = useState(null);
+  const [localTime, setLocalTime] = useState('');
+
+  // Función para obtener la hora local actual
+  const updateLocalTime = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    setLocalTime(`${hours}:${minutes}:${seconds}`);
+  };
+
+  // useEffect para actualizar la hora cada segundo
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(async (position) => {
-
-      console.log("position: ", position);
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      console.log("cordenades: ", lat, lon);
-      console.log(process.env.API_WEATHER_KEY);
-
-      //const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=02230d36bb6244048c0121043242405&q=${lat},${lon}`);
-      //const data = await response.json();
-      const data = {
-        location: {
-          name: 'Vic',
-          region: 'Catalonia',
-          country: 'Spain',
-          lat: 41.95,
-          lon: 2.29,
-          tz_id: 'Europe/Madrid',
-          localtime_epoch: 1716553530,
-          localtime: '2024-05-24 14:25'
-        },
-        current: {
-          last_updated_epoch: 1716552900,
-          last_updated: '2024-05-24 14:15',
-          temp_c: 19,
-          temp_f: 66.2,
-          is_day: 1,
-          condition: {
-            text: 'Partly cloudy',
-            icon: '//cdn.weatherapi.com/weather/64x64/day/116.png',
-            code: 1003
-          },
-          wind_mph: 5.6,
-          wind_kph: 9,
-          wind_degree: 50,
-          wind_dir: 'NE',
-          pressure_mb: 1018,
-          pressure_in: 30.06,
-          precip_mm: 0.14,
-          precip_in: 0.01,
-          humidity: 68,
-          cloud: 50,
-          feelslike_c: 19,
-          feelslike_f: 66.2,
-          vis_km: 10,
-          vis_miles: 6,
-          uv: 4,
-          gust_mph: 6.5,
-          gust_kph: 10.5
-        }
-      }
-
-      console.log(data);
-      console.log(data.current.icon);
-      const [dataTime, time] = data.location.localtime.split(" ");
-      setWeather({
-        //location: data.location.name,
-        dataTime: dataTime,
-        time: time,
-        current: data.current.temp_c,
-        humidity: data.current.humidity,
-        temps: data.current.condition.icon,
-        localtime: data.location.localtime,
-        bent_km: data.current.wind_kph,
-        //min: data.forecast.forecastday[0].day.mintemp_c,
-        //max: data.forecast.forecastday[0].day.maxtemp_c,
-      });
-    });
+    const interval = setInterval(updateLocalTime, 1000);
+    return () => clearInterval(interval);
   }, []);
 
+  // useEffect para obtener los datos del clima cada hora
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        // consulta a la api de weatherapi.com
+        const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=02230d36bb6244048c0121043242405&q=${lat},${lon}`);
+        const data = await response.json();
+        console.log(data);
+        // Datos simulados
+        /*
+        const data = {
+          location: {
+            name: 'Vic',
+            region: 'Catalonia',
+            country: 'Spain',
+            lat: 41.95,
+            lon: 2.29,
+            tz_id: 'Europe/Madrid',
+            localtime_epoch: 1716553530,
+            localtime: '2024-05-24 14:25'
+          },
+          current: {
+            last_updated_epoch: 1716552900,
+            last_updated: '2024-05-24 14:15',
+            temp_c: 19,
+            temp_f: 66.2,
+            is_day: 1,
+            condition: {
+              text: 'Partly cloudy',
+              icon: '//cdn.weatherapi.com/weather/64x64/day/116.png',
+              code: 1003
+            },
+            wind_mph: 5.6,
+            wind_kph: 9,
+            wind_degree: 50,
+            wind_dir: 'NE',
+            pressure_mb: 1018,
+            pressure_in: 30.06,
+            precip_mm: 0.14,
+            precip_in: 0.01,
+            humidity: 68,
+            cloud: 50,
+            feelslike_c: 19,
+            feelslike_f: 66.2,
+            vis_km: 10,
+            vis_miles: 6,
+            uv: 4,
+            gust_mph: 6.5,
+            gust_kph: 10.5
+          }
+        };
+        */
+        const [dataDate, time] = data.location.localtime.split(" ");
+        setWeather({
+
+          date: dataDate,
+          current: data.current.temp_c,
+          humidity: data.current.humidity,
+          temps: data.current.condition.icon,
+          localtime: data.location.localtime,
+          bent_km: data.current.wind_kph,
+        });
+      });
+    };
+
+    fetchWeatherData();
+
+    const interval = setInterval(fetchWeatherData, 3600000); // Actualizar cada hora
+    return () => clearInterval(interval);
+  }, []);
+
+  const getWeatherColor = () => {
+    if (!weather || !weather.current) {
+      return 'bg-lime-50'; // Clima templado por defecto si no hay datos
+    }
+  
+    const current = weather.current;
+  
+    if (typeof current === 'number') {
+      if (current >= 30) {
+        return 'bg-orange-50'; // Calor
+      } else if (current <= 10) {
+        return 'bg-blue-50'; // Frío
+      }
+    }
+  
+    if (current.condition && typeof current.condition.text === 'string' && current.condition.text.includes('rain')) {
+      return 'bg-gray-50'; // Lluvia
+    }
+  
+    return 'bg-lime-50'; // Clima templado
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -94,13 +134,13 @@ export default function Home() {
               {weather ? (
                 <div className="space-y-4">
                   {/*<p className="mb-2 text-lx font-bold">Ubicació: {weather.location}</p>*/}
-                  <div className="relative bg-gray p-4 rounded-lg shadow-inner">
-                    <span className="absolute inset-0 bg-slate-100 rounded-lg blur opacity-75"></span>
-                    <p className="relative text-4xl font-semibold ">
-                      {weather.time}
+                  <div className={`relative ${getWeatherColor()} p-4 rounded-lg shadow-inner`}>
+                    <span className="absolute inset-0 bg-slate-100 rounded-lg blur opacity-50"></span>
+                    <p className="relative text-4xl font-semibold">
+                      {localTime}
                     </p>
                   </div>
-                  <p className="text-lx"> <span className="font-semibold">{weather.dataTime}</span></p>
+                  <p className="text-lx"> <span className="font-semibold">{weather.date}</span></p>
                   <div className="flex items-center justify-center mb-2">
                     <p className="mr-2 text-4xl font-semibold">{weather.current}°C</p>
                     <img
