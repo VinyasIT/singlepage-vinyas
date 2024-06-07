@@ -8,15 +8,15 @@ export default function Home() {
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(async (position) => {
 
-      console.log("position: ",position);
+      console.log("position: ", position);
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
-      console.log("cordenades: ",lat, lon);
+      console.log("cordenades: ", lat, lon);
       console.log(process.env.API_WEATHER_KEY);
 
       //const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=02230d36bb6244048c0121043242405&q=${lat},${lon}`);
-      const data = await response.json();
-            /*const data = {
+      //const data = await response.json();
+      const data = {
         location: {
           name: 'Vic',
           region: 'Catalonia',
@@ -56,12 +56,15 @@ export default function Home() {
           gust_mph: 6.5,
           gust_kph: 10.5
         }
-      }*/
+      }
 
       console.log(data);
       console.log(data.current.icon);
+      const [dataTime, time] = data.location.localtime.split(" ");
       setWeather({
         //location: data.location.name,
+        dataTime: dataTime,
+        time: time,
         current: data.current.temp_c,
         humidity: data.current.humidity,
         temps: data.current.condition.icon,
@@ -87,11 +90,17 @@ export default function Home() {
             <Image src="/images/marca-grup-viñas-transparent-left.png" alt="Grup Viñas Logo" width={500} height={400} />
 
             <div className="mt-0 text-center text-2xl bg-slate-100 shadow-lg rounded-lg justify-center px-8 pt-6 pb-8 mb-4 flex flex-col my-2">
-              
+
               {weather ? (
                 <div className="space-y-4">
                   {/*<p className="mb-2 text-lx font-bold">Ubicació: {weather.location}</p>*/}
-                  <p className="text-lx"> <span className="font-semibold">{weather.localtime}</span></p>
+                  <div className="relative bg-gray p-4 rounded-lg shadow-inner">
+                    <span className="absolute inset-0 bg-slate-100 rounded-lg blur opacity-75"></span>
+                    <p className="relative text-4xl font-semibold ">
+                      {weather.time}
+                    </p>
+                  </div>
+                  <p className="text-lx"> <span className="font-semibold">{weather.dataTime}</span></p>
                   <div className="flex items-center justify-center mb-2">
                     <p className="mr-2 text-4xl font-semibold">{weather.current}°C</p>
                     <img
@@ -104,7 +113,7 @@ export default function Home() {
                   </div>
                   <p className="text-lg">Humitat: {weather.humidity}%</p>
                   <p className="text-lg">Vent: {weather.bent_km} km/h</p>
-                  
+
                 </div>
               ) : (
                 <p className="text-lg font-semibold">Loading...</p>
@@ -116,13 +125,16 @@ export default function Home() {
             <div className="absolute top-0 left-0 bottom-0 w-1/2 h- bg-gradient-to-r from-gray-100 to-transparent"></div>
           </div>
         </div>
-        {/* Aquí puedes agregar otros elementos de la página, como información sobre la empresa, etc. */}
+
       </main>
+      {/* Aquí puedes agregar otros elementos de la página, como información sobre la empresa, etc. 
       <footer className="bg-gray-800 text-white py-4">
         <div className="container mx-auto">
-          {/* Aquí puedes agregar el pie de página, como enlaces a redes sociales, información de contacto, etc. */}
+
         </div>
       </footer>
+      */}
+      {/* Aquí puedes agregar el pie de página, como enlaces a redes sociales, información de contacto, etc. */}
     </div>
   );
 }
